@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Manutenção</title>
+    <style>
+        :root {
+            --sap-primary: #3b638a;
+            --sap-secondary: #354a5f;
+            --sap-background: #f7f7f7;
+            --sap-surface: #ffffff;
+            --sap-border: #d9d9d9;
+            --sap-text: #32363a;
+            --sap-success: #107e3e;
+            --sap-warning: #e9730c;
+            --sap-error: #bb0000;
+            --sap-info: #0a6ed1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: '72', '72full', Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: var(--sap-background);
+            color: var(--sap-text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--sap-primary);
+            color: white;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        /* Form */
+        .form-section {
+            background-color: var(--sap-surface);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--sap-secondary);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--sap-border);
+            border-radius: 0.25rem;
+            background-color: var(--sap-surface);
+            color: var(--sap-text);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--sap-primary);
+            box-shadow: 0 0 0 1px var(--sap-primary);
+        }
+
+        /* Buttons */
+        .actions-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--sap-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #085c9e;
+        }
+
+        .btn-success {
+            background-color: var(--sap-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #0d6b3a;
+        }
+
+        .btn-warning {
+            background-color: var(--sap-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #f5a235;
+        }
+
+        .btn-error {
+            background-color: var(--sap-error);
+            color: white;
+        }
+
+        .btn-error:hover {
+            background-color: #a80000;
+        }
+
+        .btn-neutral {
+            background-color: var(--sap-border);
+            color: var(--sap-text);
+        }
+
+        .btn-neutral:hover {
+            background-color: #c4c4c4;
+        }
+
+        /* Table */
+        .table-section {
+            background-color: var(--sap-surface);
+            padding: 1.5rem;
+            border-radius: 0.25rem;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--sap-primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--sap-border);
+        }
+
+        tr:hover {
+            background-color: rgba(10, 110, 209, 0.05);
+        }
+
+        tr.selected {
+            background-color: rgba(10, 110, 209, 0.1);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--sap-surface);
+            padding: 1.5rem;
+            border-radius: 0.25rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--sap-border);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--sap-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--sap-text);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--sap-border);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .form-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestão de Manutenção</h1>
+        </div>
+
+        <div class="form-section">
+            <form id="maintenanceForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maintenanceType">Tipo de Manut.:</label>
+                        <select id="maintenanceType" required>
+                            <option value="">Selecione...</option>
+                            <option value="Preventiva">Preventiva</option>
+                            <option value="Corretiva">Corretiva</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="equipment">Equipamento:</label>
+                        <input type="text" id="equipment" placeholder="Equipamento em manutenção" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Data Inicio:</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="completionDate">Data Conclusao:</label>
+                        <input type="date" id="completionDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="responsible">Responsavel:</label>
+                        <input type="text" id="responsible" placeholder="Responsavel pela manutenção" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" required>
+                            <option value="">Selecione...</option>
+                            <option value="Em andamento">Em andamento</option>
+                            <option value="Atraso de Material">Atraso de Material</option>
+                            <option value="Atrasada">Atrasada</option>
+                            <option value="Concluida">Concluida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Descricao:</label>
+                        <input type="text" id="description" placeholder="descreva o serviço" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cost">Custo:</label>
+                        <input type="text" id="cost" placeholder="R$ 0,00" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="actions-section">
+            <button class="btn btn-primary" id="btnSave">Salvar</button>
+            <button class="btn btn-success" id="btnEdit">Editar Ordem</button>
+            <button class="btn btn-warning" id="btnComplete">Concluir Ordem</button>
+            <button class="btn btn-error" id="btnDelete">Excluir Ordem</button>
+            <button class="btn btn-neutral" id="btnRefresh">Atualizar</button>
+            <button class="btn btn-primary" id="btnExport">Exportar para Excel</button>
+        </div>
+
+        <div class="table-section">
+            <table id="maintenanceTable">
+                <thead>
+                    <tr>
+                        <th>Numero Ordem</th>
+                        <th>Tipo</th>
+                        <th>Descricao</th>
+                        <th>Data Inicio</th>
+                        <th>Data Conclusao</th>
+                        <th>Responsavel</th>
+                        <th>Status</th>
+                        <th>Equipamento</th>
+                        <th>Custo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dados serão carregados aqui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Editar Ordem</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editMaintenanceType">Tipo:</label>
+                        <select id="editMaintenanceType" required>
+                            <option value="Preventiva">Preventiva</option>
+                            <option value="Corretiva">Corretiva</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEquipment">Equipamento:</label>
+                        <input type="text" id="editEquipment" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editStartDate">Data Inicio:</label>
+                        <input type="date" id="editStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCompletionDate">Data Conclusao:</label>
+                        <input type="date" id="editCompletionDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editResponsible">Responsavel:</label>
+                        <input type="text" id="editResponsible" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editStatus">Status:</label>
+                        <select id="editStatus" required>
+                            <option value="Em andamento">Em andamento</option>
+                            <option value="Atraso de Material">Atraso de Material</option>
+                            <option value="Atrasada">Atrasada</option>
+                            <option value="Concluida">Concluida</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editDescription">Descricao:</label>
+                        <input type="text" id="editDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCost">Custo:</label>
+                        <input type="text" id="editCost" required>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-neutral" id="btnCancel">Cancelar</button>
+                <button class="btn btn-primary" id="btnSaveEdit">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Armazenamento local para persistência dos dados
+        const STORAGE_KEY = 'maintenanceOrders';
+        let orders = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let selectedOrderId = null;
+
+        // Elementos do DOM
+        const form = document.getElementById('maintenanceForm');
+        const tableBody = document.querySelector('#maintenanceTable tbody');
+        const editModal = document.getElementById('editModal');
+        const editForm = document.getElementById('editForm');
+
+        // Botões
+        document.getElementById('btnSave').addEventListener('click', saveData);
+        document.getElementById('btnEdit').addEventListener('click', editData);
+        document.getElementById('btnComplete').addEventListener('click', completeOrder);
+        document.getElementById('btnDelete').addEventListener('click', deleteOrder);
+        document.getElementById('btnRefresh').addEventListener('click', refreshData);
+        document.getElementById('btnExport').addEventListener('click', exportToExcel);
+        document.getElementById('btnSaveEdit').addEventListener('click', saveEdit);
+        document.getElementById('btnCancel').addEventListener('click', closeModal);
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+
+        // Formatação de moeda
+        document.getElementById('cost').addEventListener('blur', formatCurrency);
+        document.getElementById('editCost').addEventListener('blur', function() {
+            formatCurrency(this);
+        });
+
+        // Carrega os dados ao iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            setupTableSelection();
+        });
+
+        // Funções principais
+        function saveData() {
+            if (!validateForm()) return;
+
+            const order = {
+                id: generateOrderNumber(),
+                type: document.getElementById('maintenanceType').value,
+                equipment: document.getElementById('equipment').value,
+                startDate: document.getElementById('startDate').value,
+                completionDate: document.getElementById('completionDate').value,
+                responsible: document.getElementById('responsible').value,
+                status: document.getElementById('status').value,
+                description: document.getElementById('description').value,
+                cost: parseFloat(document.getElementById('cost').value.replace('R$', '').replace('.', '').replace(',', '.').trim()),
+                createdAt: new Date().toISOString()
+            };
+
+            orders.push(order);
+            saveToLocalStorage();
+            refreshData();
+            form.reset();
+            showAlert('Ordem cadastrada com sucesso!', 'success');
+        }
+
+        function editData() {
+            if (!selectedOrderId) {
+                showAlert('Selecione uma ordem para editar', 'warning');
+                return;
+            }
+
+            const order = orders.find(o => o.id === selectedOrderId);
+            if (!order) return;
+
+            // Preenche o modal com os dados da ordem
+            document.getElementById('editMaintenanceType').value = order.type;
+            document.getElementById('editEquipment').value = order.equipment;
+            document.getElementById('editStartDate').value = order.startDate;
+            document.getElementById('editCompletionDate').value = order.completionDate || '';
+            document.getElementById('editResponsible').value = order.responsible;
+            document.getElementById('editStatus').value = order.status;
+            document.getElementById('editDescription').value = order.description;
+            document.getElementById('editCost').value = formatCurrencyValue(order.cost);
+
+            // Abre o modal
+            editModal.style.display = 'flex';
+        }
+
+        function saveEdit() {
+            if (!selectedOrderId) return;
+
+            const orderIndex = orders.findIndex(o => o.id === selectedOrderId);
+            if (orderIndex === -1) return;
+
+            if (!validateEditForm()) return;
+
+            orders[orderIndex] = {
+                ...orders[orderIndex],
+                type: document.getElementById('editMaintenanceType').value,
+                equipment: document.getElementById('editEquipment').value,
+                startDate: document.getElementById('editStartDate').value,
+                completionDate: document.getElementById('editCompletionDate').value || null,
+                responsible: document.getElementById('editResponsible').value,
+                status: document.getElementById('editStatus').value,
+                description: document.getElementById('editDescription').value,
+                cost: parseFloat(document.getElementById('editCost').value.replace('R$', '').replace('.', '').replace(',', '.').trim())
+            };
+
+            saveToLocalStorage();
+            refreshData();
+            closeModal();
+            showAlert('Ordem atualizada com sucesso!', 'success');
+        }
+
+        function completeOrder() {
+            if (!selectedOrderId) {
+                showAlert('Selecione uma ordem para concluir', 'warning');
+                return;
+            }
+
+            const orderIndex = orders.findIndex(o => o.id === selectedOrderId);
+            if (orderIndex === -1) return;
+
+            orders[orderIndex].status = 'Concluida';
+            orders[orderIndex].completionDate = new Date().toISOString().split('T')[0];
+            saveToLocalStorage();
+            refreshData();
+            showAlert('Ordem marcada como concluida!', 'success');
+        }
+
+        function deleteOrder() {
+            if (!selectedOrderId) {
+                showAlert('Selecione uma ordem para excluir', 'warning');
+                return;
+            }
+
+            if (!confirm('Tem certeza que deseja excluir esta ordem?')) return;
+
+            orders = orders.filter(o => o.id !== selectedOrderId);
+            saveToLocalStorage();
+            refreshData();
+            selectedOrderId = null;
+            showAlert('Ordem excluída com sucesso!', 'success');
+        }
+
+        function refreshData() {
+            tableBody.innerHTML = '';
+            
+            if (orders.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="9" style="text-align: center;">Nenhuma ordem cadastrada</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.dataset.id = order.id;
+                
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.type}</td>
+                    <td>${order.description}</td>
+                    <td>${formatDate(order.startDate)}</td>
+                    <td>${order.completionDate ? formatDate(order.completionDate) : '-'}</td>
+                    <td>${order.responsible}</td>
+                    <td><span class="status-badge" style="
+                        background-color: ${getStatusColor(order.status)};
+                        color: white;
+                        padding: 0.25rem 0.5rem;
+                        border-radius: 0.25rem;
+                        display: inline-block;
+                    ">${order.status}</span></td>
+                    <td>${order.equipment}</td>
+                    <td>${formatCurrencyValue(order.cost)}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            setupTableSelection();
+        }
+
+        function exportToExcel() {
+            if (orders.length === 0) {
+                showAlert('Nenhum dado para exportar', 'warning');
+                return;
+            }
+
+            let csv = 'Numero Ordem,Tipo,Descricao,Data Inicio,Data Conclusao,Responsavel,Status,Equipamento,Custo\n';
+            
+            orders.forEach(order => {
+                csv += `"${order.id}","${order.type}","${order.description}","${formatDate(order.startDate)}",`;
+                csv += `"${order.completionDate ? formatDate(order.completionDate) : ''}","${order.responsible}",`;
+                csv += `"${order.status}","${order.equipment}","${formatCurrencyValue(order.cost)}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `ordens_manutencao_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Funções auxiliares
+        function generateOrderNumber() {
+            return 'OM' + Date.now().toString().slice(-6);
+        }
+
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = [
+                'maintenanceType', 'equipment', 'startDate', 
+                'responsible', 'status', 'description', 'cost'
+            ];
+
+            requiredFields.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element.value) {
+                    element.style.borderColor = 'var(--sap-error)';
+                    isValid = false;
+                } else {
+                    element.style.borderColor = '';
+                }
+            });
+
+            if (!isValid) {
+                showAlert('Preencha todos os campos obrigatórios', 'error');
+                return false;
+            }
+
+            // Validação do custo
+            const costValue = document.getElementById('cost').value;
+            if (!costValue || isNaN(parseFloat(costValue.replace('R$', '').replace('.', '').replace(',', '.').trim()))) {
+                document.getElementById('cost').style.borderColor = 'var(--sap-error)';
+                showAlert('Informe um valor válido para o custo', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateEditForm() {
+            let isValid = true;
+            const requiredFields = [
+                'editMaintenanceType', 'editEquipment', 'editStartDate', 
+                'editResponsible', 'editStatus', 'editDescription', 'editCost'
+            ];
+
+            requiredFields.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element.value) {
+                    element.style.borderColor = 'var(--sap-error)';
+                    isValid = false;
+                } else {
+                    element.style.borderColor = '';
+                }
+            });
+
+            if (!isValid) {
+                showAlert('Preencha todos os campos obrigatórios', 'error');
+                return false;
+            }
+
+            // Validação do custo
+            const costValue = document.getElementById('editCost').value;
+            if (!costValue || isNaN(parseFloat(costValue.replace('R$', '').replace('.', '').replace(',', '.').trim()))) {
+                document.getElementById('editCost').style.borderColor = 'var(--sap-error)';
+                showAlert('Informe um valor válido para o custo', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
+        function formatCurrency(eventOrElement) {
+            const element = eventOrElement.target ? eventOrElement.target : eventOrElement;
+            let value = element.value.replace(/\D/g, '');
+            value = (value / 100).toFixed(2) + '';
+            value = value.replace('.', ',');
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+            element.value = 'R$ ' + value;
+        }
+
+        function formatCurrencyValue(value) {
+            return 'R$ ' + parseFloat(value).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Concluida': return 'var(--sap-success)';
+                case 'Atrasada': return 'var(--sap-error)';
+                case 'Em andamento': return 'var(--sap-warning)';
+                case 'Atraso de Material': return 'var(--sap-warning)';
+                default: return 'var(--sap-info)';
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+        }
+
+        function setupTableSelection() {
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // Remove a seleção de todas as linhas
+                    rows.forEach(r => r.classList.remove('selected'));
+                    
+                    // Adiciona a seleção na linha clicada
+                    this.classList.add('selected');
+                    selectedOrderId = this.dataset.id;
+                });
+            });
+        }
+
+        function closeModal() {
+            editModal.style.display = 'none';
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.padding = '1rem';
+            alert.style.borderRadius = '0.25rem';
+            alert.style.color = 'white';
+            alert.style.boxShadow = '0 0 1rem rgba(0,0,0,0.2)';
+            alert.style.zIndex = '1000';
+            alert.style.transition = 'opacity 0.5s';
+            
+            switch (type) {
+                case 'success':
+                    alert.style.backgroundColor = 'var(--sap-success)';
+                    break;
+                case 'error':
+                    alert.style.backgroundColor = 'var(--sap-error)';
+                    break;
+                case 'warning':
+                    alert.style.backgroundColor = 'var(--sap-warning)';
+                    break;
+                default:
+                    alert.style.backgroundColor = 'var(--sap-info)';
+            }
+            
+            alert.textContent = message;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
